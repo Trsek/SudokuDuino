@@ -1,3 +1,12 @@
+/*
+  Sudoku for Arduino with touch LCD
+  Software by Zdeno Sekerak (c) 2015. www.trsek.com/en/curriculum
+
+  This software is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
+
 #include <stdint.h>
 #include <EEPROM.h>
 #include "TouchScreen.h"
@@ -43,12 +52,13 @@ Adafruit_GFX_Button button_new;
 Adafruit_GFX_Button button_save;
 Adafruit_GFX_Button button_load;
 
-#define NUMBER_FIX  0x80
-#define NUMBER_MASK  0x0F
+#define NUMBER_FIX     0x80
+#define NUMBER_MASK    0x0F
 #define NUMBER_RESERVE 1
-#define NUMBER_FREE -1
-#define _EEPROM_READ 0
-#define _EEPROM_WRITE 1
+#define NUMBER_FREE   -1
+#define _EEPROM_READ   0
+#define _EEPROM_WRITE  1
+#define DEBUG               // when you want see debug info in serial monitor
 
 typedef struct
 {
@@ -61,12 +71,24 @@ byte act_x, act_y;
 char text[2];
 // -----------------------------------------------------------------------------
 
-/*
+#ifdef DEBUG
 void debug_info()
 {
   Serial.print(" act_x = "); Serial.println(act_x);
   Serial.print(" act_y = "); Serial.println(act_y);
   Serial.println(" pole[][] = ");
+
+  for (int y = 0; y < 9; y++)
+  {
+    for (int x = 0; x < 9; x++)
+    {
+      Serial.print(num[x][y].number & NUMBER_MASK);
+      if((x%3) == 2) Serial.print(" ");
+    }
+    Serial.println();
+  }
+  Serial.println("------------------------------------------------------------");
+  
   for (int y = 0; y < 9; y++)
   {
     for (int x = 0; x < 9; x++)
@@ -82,7 +104,7 @@ void debug_info()
   }
   Serial.println("------------------------------------------------------------");
 }
-*/
+#endif
 // -----------------------------------------------------------------------------
 
 
@@ -316,7 +338,9 @@ void setup(void)
   tft.fillScreen(BLACK);
   sudokuMix(29);
   sudokuRedraw();
-//  debug_info();
+#ifdef DEBUG
+  debug_info();
+#endif
 
   tft.setTextColor(BLUE);
   tft.setTextSize(1);
@@ -388,7 +412,8 @@ void loop(void)
     {
       Serial.println("save");
       button_save.drawButton (true);
-      EEPROM_modul((byte*) &num, sizeof(num), _EEPROM_WRITE);
+      //1EEPROM_modul((byte*) &num, sizeof(num), _EEPROM_WRITE);
+      debug_info();
       button_save.drawButton (false);
       return;
     }
@@ -442,3 +467,4 @@ void loop(void)
   } // if (touch)
 }
 // -----------------------------------------------------------------------------
+
